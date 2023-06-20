@@ -41,9 +41,10 @@ public class MyRunner implements CommandLineRunner {
         var aantalTickets = scanner.nextInt();
         System.out.println("Geef id van een festival");
         var idFestival = scanner.nextLong();
-        var boeking = new Boeking(naam, aantalTickets, idFestival);
         try {
+            var boeking = new Boeking(naam, aantalTickets, idFestival);
             boekingService.boeking(boeking);
+            System.out.println("Boeking is gelukt");
         } catch (FestivalNietGevondenException | BeschikbareTicketsNietGenoeg ex){
             ex.printStackTrace();
         }

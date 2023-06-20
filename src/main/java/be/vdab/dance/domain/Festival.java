@@ -1,5 +1,6 @@
 package be.vdab.dance.domain;
 
+import be.vdab.dance.exceptions.BeschikbareTicketsNietGenoeg;
 import be.vdab.dance.exceptions.GeenReclameBudgetException;
 
 import java.math.BigDecimal;
@@ -8,7 +9,7 @@ import java.util.List;
 public class Festival {
     private final long id;
     private final String naam;
-    private final int ticketsBeschikbaar;
+    private int ticketsBeschikbaar;
     private BigDecimal reclameBudget;
 
     public Festival(long id, String naam, int ticketsBeschikbaar, BigDecimal reclameBudget) {
@@ -54,6 +55,14 @@ public class Festival {
         for (var festival : festivals) {
              festival.reclameBudget = festival.reclameBudget.add(toeTeVoegenBedrag);
         }
-
+    }
+    public void boek(int tickets){
+        if (tickets <= 0) {
+            throw new IllegalArgumentException();
+        }
+        if (tickets > ticketsBeschikbaar) {
+            throw new BeschikbareTicketsNietGenoeg();
+        }
+        ticketsBeschikbaar -= tickets;
     }
 }

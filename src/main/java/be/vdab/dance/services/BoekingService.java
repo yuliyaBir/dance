@@ -3,6 +3,7 @@ package be.vdab.dance.services;
 import be.vdab.dance.domain.Boeking;
 import be.vdab.dance.domain.Festival;
 import be.vdab.dance.exceptions.BeschikbareTicketsNietGenoeg;
+import be.vdab.dance.exceptions.FestivalNietGevondenException;
 import be.vdab.dance.repositories.BoekingRepository;
 import be.vdab.dance.repositories.FestivalRepository;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,14 @@ public class BoekingService {
     }
     @Transactional
     public void boeking(Boeking boeking){
-        Optional<Festival> festival = festivalRepository.findAndLockById(boeking.getFestivalId());
-        var beschikbareTickets = festival.get().getTicketsBeschikbaar();
-        if (boeking.getAantalTickets() > beschikbareTickets){
-            throw new BeschikbareTicketsNietGenoeg("Het aantal beschikbare tickets: "
-                    + festival.get().getTicketsBeschikbaar());
+        var festival = festivalRepository.findAndLockById(boeking.getFestivalId())
+                .orElseThrow(() ->
+                        new FestivalNietGevondenException(boeking.getFestivalId()));
+        var beschikbareTickets = festival.getTicketsBeschikbaar();
+        if (boeking.getAantalTickets() > beschikbareTickets) {
+            throw new BeschikbareTicketsNietGenoeg();
         }
+        festival.boek(boeking.getAantalTickets());
         festivalRepository.updateBeschikbareTickets(boeking.getFestivalId(), boeking.getAantalTickets());
         boekingRepository.create(boeking);
     }
